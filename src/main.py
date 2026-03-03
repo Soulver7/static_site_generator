@@ -1,19 +1,21 @@
-import os, shutil
+import os, shutil, sys
 
 from copy_static import copy_src_to_dest
 from page_generator import generate_pages_recursive
 
 
+
 def main():
-    print("Deleting existing public directory...")
-    if os.path.exists("public"):
-        shutil.rmtree("public")
+    basepath = sys.argv[1] if len(sys.argv) > 1 and sys.argv[1] != "" else "/"
 
-    print("Copying static files to new public directory...")
-    copy_src_to_dest("./static", "./public")
+    print("Deleting existing docs directory...")
+    if os.path.exists("docs"):
+        shutil.rmtree("docs")
 
-    generate_pages_recursive("./content", "./template.html", "./public")
+    print("Copying static files to new docs directory...")
+    copy_src_to_dest("./static", "./docs")
 
+    generate_pages_recursive("./content", "./template.html", "./docs", basepath)
 
 
 main()
