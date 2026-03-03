@@ -1,6 +1,6 @@
 import unittest
 
-from block_markdown import BlockType, markdown_to_blocks, block_to_block_type, markdown_to_html_node
+from block_markdown import BlockType, markdown_to_blocks, block_to_block_type, markdown_to_html_node, extract_title
 
 class TestMarkdownToBlocks(unittest.TestCase):
     def test_markdown_to_blocks(self):
@@ -162,8 +162,46 @@ This is a code block without a closing tag
 """
         with self.assertRaises(ValueError):
             markdown_to_html_node(md)
+
+
+class TestExtractTitle(unittest.TestCase):
+    def test_extract_title(self):
+        md = """
+# This is the title
+This is the content of the markdown file
+"""
+        title = extract_title(md)
+        self.assertEqual(title, "This is the title")
     
+    def test_extract_title_no_title(self):
+        md = """
+This markdown file does not have a title
+"""
+        with self.assertRaises(ValueError):
+            extract_title(md)
     
+    def test_extract_title_multiple_titles(self):
+        md = """
+# This is the first title
+# This is the second title
+"""
+        title = extract_title(md)
+        self.assertEqual(title, "This is the first title")
+    
+    def test_extract_title_title_not_at_start(self):
+        md = """
+This is some content before the title
+# This is the title
+"""
+        with self.assertRaises(ValueError):
+            extract_title(md)
+    
+    def test_extrat_title_string_title(self):
+        md = "# Hello"
+        title = extract_title(md)
+        self.assertEqual(title, "Hello")
+
+
 
 if __name__ == "__main__":
     unittest.main()

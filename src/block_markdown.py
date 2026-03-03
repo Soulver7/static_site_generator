@@ -1,6 +1,4 @@
 from enum import Enum
-import re
-
 from htmlnode import ParentNode
 from textnode import TextNode, TextType, text_node_to_html_node
 from inline_markdown import text_to_textnodes
@@ -79,7 +77,7 @@ def markdown_to_html_node(markdown):
                     hashes += 1
                 else:
                     break
-            if hashes + 1 >= 1:
+            if hashes > 6:
                 raise ValueError("Invalid header syntax: Too many # characters")
             children = text_to_children(block[hashes+1:])
             nodes.append(ParentNode(f'h{hashes}', children))
@@ -116,7 +114,7 @@ def markdown_to_html_node(markdown):
             for item in lines:
                 sections = item.split(". ", 1)
                 if len(sections) != 2:
-                    raise ValueError("Invalid ordered list syntax: Each line must start with a number followed by '.'")
+                    raise ValueError("Invalid ordered list syntax: Each line must start with a number followed by '. '")
                 else:
                     child = text_to_children(sections[1])
                     list_items.append(ParentNode("li", child))
@@ -126,4 +124,13 @@ def markdown_to_html_node(markdown):
             raise ValueError("Unknown block type")
         
     return ParentNode("div", nodes)
+
+
+def extract_title(markdown):
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        if block.startswith("# "):
+            title_line = block.split("\n", 1)[0]
+            return title_line[2:].strip()
+    raise ValueError("No title found: Markdown must contain a block starting with '# ' to be used as title")
     
